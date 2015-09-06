@@ -56,11 +56,20 @@ while True:
         potVal = int(pot.read() * .249)
         lumVal = float(lum.read())
         tmp1Val = float(temp.read())
-        bVal = 3975
-        resistanceVal = (1023 - tmp1Val) * 10000 / tmp1Val
+        '''
+        const int B=4275;                 // B value of the thermistor
+        const int R0 = 100000;            // R0 = 100k
+        float R = 1023.0/((float)a)-1.0;
+        R = 100000.0*R;
+        flot temperature=1.0/(log(R/100000.0)/B+1/298.15)-273.15;//convert to temperature via datasheet ;
+        '''
+        bVal = 4275
+        # resistanceVal = (1023 - tmp1Val) * 10000 / tmp1Val
+
+        resistanceVal = float(1023.0 / (tmp1Val) - 1.0) * 100000.0
         celsiusVal = 1 / (math.log(resistanceVal / 10000) / bVal + 1 / 298.15) - 273.15
-        fahrVal = (celsiusVal * (9 / 5)) + 32
-        tempVal = fahrVal
+        # fahrVal = (celsiusVal * (9 / 5)) + 32
+        tempVal = celsiusVal
 
         print "Pot: " + str(potVal) + " Lumens: " + str(lumVal) + " Temp: " + str(tempVal)
 
