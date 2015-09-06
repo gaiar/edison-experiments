@@ -48,7 +48,7 @@ while True:
         time.sleep(3)
         # wait 3 second to get pot value
         # turn buzzer on
-        buzPin.write(1)
+        #buzPin.write(1)
         time.sleep(1)
         buzPin.write(0)
 
