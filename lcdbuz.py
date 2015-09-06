@@ -64,9 +64,9 @@ while True:
         flot temperature=1.0/(log(R/100000.0)/B+1/298.15)-273.15;//convert to temperature via datasheet ;
         '''
         bVal = 4275
-        # resistanceVal = (1023 - tmp1Val) * 10000 / tmp1Val
+        resistanceVal = (1023 - tmp1Val) * 10000 / tmp1Val
 
-        resistanceVal = float(1023.0 / (tmp1Val) - 1.0) * 100000.0
+        # resistanceVal = float(1023.0 / (tmp1Val) - 1.0) * 100000.0
         celsiusVal = 1 / (math.log(resistanceVal / 10000) / bVal + 1 / 298.15) - 273.15
         # fahrVal = (celsiusVal * (9 / 5)) + 32
         tempVal = celsiusVal
