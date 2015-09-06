@@ -13,8 +13,10 @@ myLcd.setCursor(0,0)
 # RGB Red
 myLcd.setColor(255, 0, 0)
 
-myLcd.write('Gaiar')
-myLcd.setCursor(1,2)
-myLcd.write('Baimuratov')
+myLcd.write('Gaiar loves')
+myLcd.setCursor(1,0)
+myLcd.write('Ekaterina')
 
-raw_input("Press Enter to continue...")
+raw_input("Press Enter if you believe...")
+
+
