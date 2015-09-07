@@ -75,21 +75,14 @@ while True:
 
         potStr = "P:" + str(potVal) + "L:" + str(lumVal)
         lcdDisplay.setCursor(0, 0)
-        lcdDisplay.setColor(potVal, 0, 0)
+        #lcdDisplay.setColor(potVal, 0, 0)
         lcdDisplay.write(potStr)
 
         lumStr = "Temp: " + str(tempVal)
         lcdDisplay.setCursor(1, 0)
         lcdDisplay.write(lumStr)
 
-        time.sleep(3)
-        potgrnVal = int(pot.read() * .249)
-        # Print "Green: " + str(potgrnVal)
-        lcdDisplay.setColor(potVal, potgrnVal, 0)
-        time.sleep(3)
-        potbluVal = int(pot.read() * .249)
         # Print "Blue: " + str(potbluVal)
-        lcdDisplay.setColor(potVal, potgrnVal, potbluVal)
 
 
         # turn led off
