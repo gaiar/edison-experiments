@@ -1,6 +1,6 @@
 __author__ = 'gaiar'
 
-import Sensors from sensors
+from sensors import Sensors
 
 
 print(Sensors.get_light_sensor_data())
