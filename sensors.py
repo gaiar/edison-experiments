@@ -44,9 +44,6 @@ class Sensors:
     def get_encoder_data(self):
         return ''
 
-    def get_ths_sensor_data(self):
-        return ''
-
     def get_temp_sensor_data(self):
         th02 = ths.TH02()
         temp = ths.getTemperature()
