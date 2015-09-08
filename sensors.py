@@ -6,7 +6,7 @@ import time
 
 
 class Sensors(object):
-    SensorsData = []
+    SensorsData = {}
 
     PIN_BUZZER = 4
     PIN_LIGHT = 2
