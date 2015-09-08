@@ -5,7 +5,7 @@ import mraa
 import time
 
 
-class Sensors:
+class Sensors(object):
     SensorsData = []
 
     PIN_BUZZER = 4
@@ -18,7 +18,6 @@ class Sensors:
     PIN_RELAY = 5
 
     def get_moisture_sensor_data(self):
-
         return ''
 
     def get_light_sensor_data(self):
@@ -55,7 +54,5 @@ class Sensors:
         self.SensorsData['humidity'] = temp
         return temp
 
-
     def set_lcd_date(self):
         return ''
-
