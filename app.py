@@ -31,3 +31,10 @@ lcd.write("%")
 # display_ths_sensor_data()
 
 raw_input("Press Enter if you believe...")
+
+
+def get_menu_index():
+    
+
+def display_menu():
+    return ''

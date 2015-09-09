@@ -1,6 +1,7 @@
 import pyupm_i2clcd as lcd_screen
 import pyupm_grove as grove
 import pyupm_th02 as ths
+import pyupm_rotaryencoder as rotary_encoder
 import mraa
 import time
 import math
@@ -43,7 +44,8 @@ class Sensors(object):
         return sensor_value
 
     def get_encoder_data(self):
-        return ''
+        encoder = rotary_encoder.RotaryEncoder(self.PIN_ENCODER)
+        return encoder.position()
 
     def get_temp_sensor_data(self):
         th02 = ths.TH02()
