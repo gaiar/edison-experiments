@@ -1,8 +1,9 @@
-import pyupm_i2clcd as lcd
+import pyupm_i2clcd as lcd_screen
 import pyupm_grove as grove
 import pyupm_th02 as ths
 import mraa
 import time
+import math
 
 
 class Sensors(object):
@@ -38,21 +39,20 @@ class Sensors(object):
             i += 1
         sensor_data_sum = sensor_data_sum >> 10
         self.SensorsData['uv'] = float(sensor_data_sum * 4980.0 / 1023.0)
-        return float(sensor_data_sum * 4980.0 / 1023.0)
+        # return float(sensor_data_sum * 4980.0 / 1023.0)
+        return sensor_value
 
     def get_encoder_data(self):
         return ''
 
     def get_temp_sensor_data(self):
         th02 = ths.TH02()
-        temp = ths.getTemperature()
+        temp = th02.getTemperature()
         self.SensorsData['temp'] = temp
-        return temp
+        return int(temp)
 
     def get_humidity_sensor_data(self):
-        temp = ths.getHumidity()
+        th02 = ths.TH02()
+        temp = th02.getHumidity()
         self.SensorsData['humidity'] = temp
-        return temp
-
-    def set_lcd_date(self):
-        return ''
+        return int(temp)
