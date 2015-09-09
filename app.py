@@ -1,6 +1,7 @@
 __author__ = 'gaiar'
 
 from sensors import Sensors
+import telegram
 import pyupm_i2clcd as lcd_screen
 
 #print('UV: ' + str(Sensors().get_uv_sensor_data()))
