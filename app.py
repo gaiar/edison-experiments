@@ -3,8 +3,6 @@ __author__ = 'gaiar'
 import time, sys, signal, atexit
 from sensors import Sensors
 import telegram
-
-
 import operator
 
 global mysensors
