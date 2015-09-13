@@ -3,7 +3,6 @@ __author__ = 'gaiar'
 import time, sys, signal, atexit
 from sensors import Sensors
 import telegram
-import pyupm_rotaryencoder as upm_rotary_encoder
 
 
 import operator

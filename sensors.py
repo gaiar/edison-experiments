@@ -6,9 +6,6 @@ import pyupm_guvas12d as upm_uv
 import pyupm_buzzer as upm_buzzer
 import pyupm_servo as upm_servo
 
-import mraa
-import time
-import math
 
 
 class Sensors(object):
