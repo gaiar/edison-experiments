@@ -46,7 +46,7 @@ ops = {
 def servo_handle(value):
     curt = current_milli_time
     if (current_milli_time - curt > 1000):
-        #servo.setAngle(value)
+        # servo.setAngle(value)
         curt = current_milli_time
 
 
@@ -77,6 +77,7 @@ SensorConfig = [
 ]
 
 current_milli_time = lambda: int(round(time.time() * 1000))
+
 
 ## Exit handlers ##
 # This function stops python from printing a stacktrace when you hit control-C
@@ -130,8 +131,7 @@ def is_button_pressed():
 # atexit.register(exitHandler)
 # signal.signal(signal.SIGINT, SIGINTHandler)
 
-last_data = None
-print_settings()
+
 
 
 
@@ -156,9 +156,57 @@ def display_menu():
     return ''
 
 
-def app(self):
-    temp_color_handler()
-    display_menu()
-    if (button.value()):
-        self.isBackLightOn = not self.isBackLightOn
-    return
+LAST_UPDATE_ID = None
+
+
+def main():
+    global LAST_UPDATE_ID
+
+    bot = telegram.Bot(token='129517685:AAF78SRwWNdaL8XY0z3tDSIKLqcxV6N8eIw')
+    try:
+        LAST_UPDATE_ID = bot.getUpdates()[-1].update_id
+    except IndexError:
+        LAST_UPDATE_ID = None
+    while True:
+        sensor_bot(bot)
+
+
+def sensor_bot(bot):
+    global LAST_UPDATE_ID
+    custom_keyboard = [['Temp', 'Light', 'Humidity', 'UV', 'Moisture']]
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+
+    for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
+        chat_id = update.message.chat_id
+        print(update.message)
+        message = update.message.text.encode('utf-8')
+
+        if (message):
+
+            if 'Temp' in message:
+                bot.sendMessage(chat_id=chat_id, text='Temp: ' + str(Sensors().get_temp_sensor_data()),
+                                reply_markup=reply_markup)
+
+            if 'Light' in message:
+                bot.sendMessage(chat_id=chat_id, text='Light: ' + str(Sensors().get_light_sensor_data()),
+                                reply_markup=reply_markup)
+
+            if 'Humidity' in message:
+                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_humidity_sensor_data()),
+                                reply_markup=reply_markup)
+
+            if 'UV' in message:
+                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_uv_sensor_data()),
+                                reply_markup=reply_markup)
+
+            if 'Moisture' in message:
+                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_moisture_sensor_data()),
+                                reply_markup=reply_markup)
+
+        LAST_UPDATE_ID = update.update_id + 1
+
+
+if __name__ == '__main__':
+    main()
+
+# print_settings()

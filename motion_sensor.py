@@ -3,7 +3,6 @@ import pyupm_biss0001 as upmMotion
 import pyupm_grove as grove
 import pyupm_buzzer as upmBuzzer
 import pyupm_grove as grove
-import mraa
 
 # Instantiate a Grove Motion sensor on GPIO pin D7
 myMotion = upmMotion.BISS0001(7)
