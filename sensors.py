@@ -21,6 +21,7 @@ class Sensors(object):
     PIN_SOUND = 7
     PIN_RELAY = 5
 
+
     GUVAS12D_AREF = 5.0
     SAMPLES_PER_QUERY = 1024
 
@@ -33,10 +34,14 @@ class Sensors(object):
     relay = grove.GroveRelay(0)
     button = grove.GroveButton(8)
     servo = upm_servo.Servo(5)
+    led = grove.GroveLed(PIN_LED)
+
+    led_state = False
 
     def __init__(self):
         self.encoder.initPosition(0)
         self.buzzer.stopSound()
+        #self.led.off()
 
     def get_moisture_sensor_data(self):
         return ''
@@ -84,6 +89,18 @@ class Sensors(object):
 
     def set_buzzer(self, value):
         self.buzzer.playSound(upm_buzzer.SI, 100000)
+
+    def switch_light(self):
+        print ('Current state:'+str(self.led_state))
+        if (self.led_state):
+            print ('LED OFF')
+            self.led.off()
+        else:
+            print ('LED ON')
+            self.led.on()
+
+        self.led_state = not self.led_state
+        print ('Switched state:'+str(self.led_state))
 
     def turn_off(self):
         del self.encoder

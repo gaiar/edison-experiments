@@ -4,6 +4,7 @@ import time, sys, signal, atexit
 from sensors import Sensors
 import telegram
 import operator
+import time
 
 global mysensors
 mysensors = Sensors()
@@ -178,13 +179,13 @@ def sensor_bot(bot):
 
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
         chat_id = update.message.chat_id
-        print(update.message)
+        #print(update.message)
         message = update.message.text.encode('utf-8')
 
         if (message):
-
+            mysensors.switch_light()
             if 'Temp' in message:
-                bot.sendMessage(chat_id=chat_id, text='Temp: ' + str(Sensors().get_temp_sensor_data()),
+                bot.sendMessage(chat_id=chat_id, text='Temperature: ' + str(Sensors().get_temp_sensor_data()) + 'C',
                                 reply_markup=reply_markup)
 
             if 'Light' in message:
@@ -192,17 +193,23 @@ def sensor_bot(bot):
                                 reply_markup=reply_markup)
 
             if 'Humidity' in message:
-                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_humidity_sensor_data()),
+                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_humidity_sensor_data())+ '%',
                                 reply_markup=reply_markup)
 
             if 'UV' in message:
-                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_uv_sensor_data()),
+                bot.sendMessage(chat_id=chat_id, text='UV: ' + str(Sensors().get_uv_sensor_data()),
                                 reply_markup=reply_markup)
 
             if 'Moisture' in message:
-                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_moisture_sensor_data()),
+                bot.sendMessage(chat_id=chat_id, text='Moisture: ' + str(Sensors().get_moisture_sensor_data()),
                                 reply_markup=reply_markup)
 
+            if '/start' in message:
+                bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
+                                reply_markup=reply_markup)
+            print ('Sleeping')
+            time.sleep(2)
+            mysensors.switch_light()
         LAST_UPDATE_ID = update.update_id + 1
 
 
