@@ -5,9 +5,12 @@ from sensors import Sensors
 import telegram
 import operator
 import time
+import botan
 
 global mysensors
 mysensors = Sensors()
+
+BOTAN_TOKEN = '3332aa98-4a97-4617-a68b-902122df9cc0'
 
 CMDSTR_MAX_LEN = 128
 LOW_TEMP = 10
@@ -182,43 +185,52 @@ def sensor_bot(bot):
         # print(update.message)
         try:
             chat_id = update.message.chat_id
-            message = update.message.text.encode('utf-8')
-        except (IndexError, ValueError, KeyError, TypeError) as error:
-            print (error)
+            message = update.message
+            user_id = message['from'].id
 
-        if (message):
+            message_text = update.message.text.encode('utf-8')
+        except (IndexError, ValueError, KeyError, TypeError) as error:
+            print(error)
+
+        if (message_text):
 
             # mysensors.switch_light()
-            if 'Temp' in message:
+            if 'Temp' in message_text:
                 bot.sendMessage(chat_id=chat_id, text='Temperature: ' + str(Sensors().get_temp_sensor_data()) + 'C',
                                 reply_markup=reply_markup)
+                botan.track(BOTAN_TOKEN, user_id, message, 'Temperature')
 
-            if 'Light' in message:
-                bot.sendMessage(chat_id=chat_id, text='Light: ' + str(Sensors().get_light_sensor_data()),
-                                reply_markup=reply_markup)
+                if 'Light' in message_text:
+                    bot.sendMessage(chat_id=chat_id, text='Light: ' + str(Sensors().get_light_sensor_data()),
+                                    reply_markup=reply_markup)
+                    botan.track(BOTAN_TOKEN, user_id, message, 'Light')
 
-            if 'Humidity' in message:
-                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_humidity_sensor_data()) + '%',
-                                reply_markup=reply_markup)
+                if 'Humidity' in message_text:
+                    bot.sendMessage(chat_id=chat_id,
+                                    text='Humidity: ' + str(Sensors().get_humidity_sensor_data()) + '%',
+                                    reply_markup=reply_markup)
+                    botan.track(BOTAN_TOKEN, user_id, message, 'Humidity')
 
-            if 'UV' in message:
-                bot.sendMessage(chat_id=chat_id, text='UV: ' + str(Sensors().get_uv_sensor_data()),
-                                reply_markup=reply_markup)
+                if 'UV' in message_text:
+                    bot.sendMessage(chat_id=chat_id, text='UV: ' + str(Sensors().get_uv_sensor_data()),
+                                    reply_markup=reply_markup)
+                    botan.track(BOTAN_TOKEN, user_id, message, 'UV')
 
-            if 'Moisture' in message:
-                bot.sendMessage(chat_id=chat_id, text='Moisture: ' + str(Sensors().get_moisture_sensor_data()),
-                                reply_markup=reply_markup)
+                if 'Moisture' in message_text:
+                    bot.sendMessage(chat_id=chat_id, text='Moisture: ' + str(Sensors().get_moisture_sensor_data()),
+                                    reply_markup=reply_markup)
+                    botan.track(BOTAN_TOKEN, user_id, message, 'Moisture')
 
-            if '/start' in message:
-                bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
-                                reply_markup=reply_markup)
-                # print ('Sleeping')
-                # time.sleep(2)
-                # mysensors.switch_light()
-        LAST_UPDATE_ID = update.update_id + 1
+                if '/start' in message_text:
+                    bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
+                                    reply_markup=reply_markup)
+                    botan.track(BOTAN_TOKEN, user_id, message, 'Start')
+                    # print ('Sleeping')
+                    # time.sleep(2)
+                    # mysensors.switch_light()
+            LAST_UPDATE_ID = update.update_id + 1
 
+    if __name__ == '__main__':
+        main()
 
-if __name__ == '__main__':
-    main()
-
-# print_settings()
+        # print_settings()
