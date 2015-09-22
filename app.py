@@ -174,16 +174,21 @@ def main():
 
 def sensor_bot(bot):
     global LAST_UPDATE_ID
-    custom_keyboard = [['Temp', 'Light', 'Humidity', 'UV', 'Moisture']]
+    custom_keyboard = [['Temp'], ['Humidity'], ['Light', 'UV'], ['Moisture']]
     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
 
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
-        chat_id = update.message.chat_id
-        #print(update.message)
-        message = update.message.text.encode('utf-8')
+
+        # print(update.message)
+        try:
+            chat_id = update.message.chat_id
+            message = update.message.text.encode('utf-8')
+        except (IndexError, ValueError, KeyError, TypeError) as error:
+            print (error)
 
         if (message):
-            mysensors.switch_light()
+
+            # mysensors.switch_light()
             if 'Temp' in message:
                 bot.sendMessage(chat_id=chat_id, text='Temperature: ' + str(Sensors().get_temp_sensor_data()) + 'C',
                                 reply_markup=reply_markup)
@@ -193,7 +198,7 @@ def sensor_bot(bot):
                                 reply_markup=reply_markup)
 
             if 'Humidity' in message:
-                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_humidity_sensor_data())+ '%',
+                bot.sendMessage(chat_id=chat_id, text='Humidity: ' + str(Sensors().get_humidity_sensor_data()) + '%',
                                 reply_markup=reply_markup)
 
             if 'UV' in message:
@@ -207,9 +212,9 @@ def sensor_bot(bot):
             if '/start' in message:
                 bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
                                 reply_markup=reply_markup)
-            print ('Sleeping')
-            time.sleep(2)
-            mysensors.switch_light()
+                # print ('Sleeping')
+                # time.sleep(2)
+                # mysensors.switch_light()
         LAST_UPDATE_ID = update.update_id + 1
 
 
