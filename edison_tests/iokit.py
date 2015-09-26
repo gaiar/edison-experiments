@@ -53,40 +53,38 @@ def main():
 
     # Обновляем код активации
     ac = generate_activation_code(aid)
-    print
-    "Activation code: {0}".format(ac)
+    print("Activation code: {0}".format(ac))
 
     # Активируем девайс
 
 
-g_device_token = activate(aid, device_id,
-                          ac)  # Регистрируем сенсор измерения расстояния "Distance.v1.0". Данный вызов вернет component_id (cid)
-cid = create_component(aid, device_id, "Distance.v1.0", "Dist")
-print
-"ComponentID (cid): {0}".format(cid)
+    g_device_token = activate(aid, device_id,
+                              ac)  # Регистрируем сенсор измерения расстояния "Distance.v1.0". Данный вызов вернет component_id (cid)
+    cid = create_component(aid, device_id, "Distance.v1.0", "Dist")
+    print("ComponentID (cid): {0}".format(cid))
 
-lcd = pyupm_i2clcd.Jhd1313m1(6, 0x3E, 0x62)
-with open('/dev/ttymcu0', 'w+t') as f:
-    while True:
-        f.write('get_distance\n')  # Send command to MCU
-        f.flush()
-        line = f.readline()  # Read response from MCU, -1 = ERROR
-        value = int(line.strip('\n\r\t '))
-        # сабмитим данные в облако
-        create_observations(aid, device_id, cid, value)
+    lcd = pyupm_i2clcd.Jhd1313m1(6, 0x3E, 0x62)
+    with open('/dev/ttymcu0', 'w+t') as f:
+        while True:
+            f.write('get_distance\n')  # Send command to MCU
+            f.flush()
+            line = f.readline()  # Read response from MCU, -1 = ERROR
+            value = int(line.strip('\n\r\t '))
+            # сабмитим данные в облако
+            create_observations(aid, device_id, cid, value)
 
-        # читаем засабмиченные данные
-    o = get_observations(aid, device_id, cid)
-    print_observation_counts(o)
+            # читаем засабмиченные данные
+        o = get_observations(aid, device_id, cid)
+        print_observation_counts(o)
 
-lcd.clear()
-if value == -1:
-    lcd.setColor(255, 0, 0)  # RED
-    lcd.write('ERROR')
-else:
-    lcd.setColor(0, 255, 0)  # GREEN
-    lcd.write('%d cm' % (value,))
-time.sleep(1)
+    lcd.clear()
+    if value == -1:
+        lcd.setColor(255, 0, 0)  # RED
+        lcd.write('ERROR')
+    else:
+        lcd.setColor(0, 255, 0)  # GREEN
+        lcd.write('%d cm' % (value,))
+    time.sleep(1)
 
 
 def get_user_headers():
@@ -108,8 +106,7 @@ def get_device_headers():
 
 def check(resp, code):
     if resp.status_code != code:
-        print
-        "Expected {0}. Got {1} {2}".format(code, resp.status_code, resp.text)
+        print("Expected {0}. Got {1} {2}".format(code, resp.status_code, resp.text))
         sys.exit(1)
 
 
@@ -144,10 +141,8 @@ def get_account_id(user_id, account_name):
         for k, v in accounts.iteritems():
             if 'name' in v and v["name"] == account_name:
                 return k
-    print
-    "Account name {0} not found.".format(account_name)
-    print
-    "Available accounts are: {0}".format([v["name"] for k, v in accounts.iteritems()])
+    print("Account name {0} not found.".format(account_name))
+    print("Available accounts are: {0}".format([v["name"] for k, v in accounts.iteritems()]))
     return None
 
 
@@ -192,8 +187,7 @@ def activate(account_id, device_id, activation_code):
         token = js["deviceToken"]
         return token
     else:
-        print
-        js
+        print(js)
         sys.exit(1)
 
 
@@ -220,16 +214,12 @@ def create_observations(account_id, device_id, cid, val):
     o = {
         "componentId": cid,
         "value": str(val),
-        "attributes": {
-            "i": i
-        }
+        "attributes": {"i": i}
     }
     body["data"].append(o)
-
-
-data = json.dumps(body)
-resp = requests.post(url, data=data, headers=get_device_headers(), proxies=proxies, verify=verify)
-check(resp, 201)
+    data = json.dumps(body)
+    resp = requests.post(url, data=data, headers=get_device_headers(), proxies=proxies, verify=verify)
+    check(resp, 201)
 
 
 def get_observations(account_id, device_id, component_id):
@@ -257,8 +247,7 @@ def print_observation_counts(js):
         series = js["series"]
         series = sorted(series, key=lambda v: v["deviceName"])
         for v in series:
-            print
-            "Device: {0} Count: {1}".format(v["deviceName"], len(v["points"]))
+            print("Device: {0} Count: {1}".format(v["deviceName"], len(v["points"])))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,12 @@
+opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0
+
+
+./configure --with-http_ssl_module --with-zlib=../zlib-1.2.8 --with-pcre-jit --with-ipv6 --with-pcre-jit --with-http_gzip_static_module --with-http_ssl_module --with-ipv6 --with-http_geoip_module --with-http_stub_status_module
+
+wget https://bootstrap.pypa.io/get-pip.py
+
+python get-pip.py
+
+pip install virtualenv
+
+pip install requests[security]

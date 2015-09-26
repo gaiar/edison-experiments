@@ -71,7 +71,7 @@ while True:
         # fahrVal = (celsiusVal * (9 / 5)) + 32
         tempVal = celsiusVal
 
-        print "Pot: " + str(potVal) + " Lumens: " + str(lumVal) + " Temp: " + str(tempVal)
+        print ("Pot: " + str(potVal) + " Lumens: " + str(lumVal) + " Temp: " + str(tempVal))
 
         potStr = "P:" + str(potVal) + "L:" + str(lumVal)
         lcdDisplay.setCursor(0, 0)
