@@ -1,0 +1,50 @@
+GETTING FROM REPO
+
+# Adding repositories and installing required software
+
+echo "src/gz all http://repo.opkg.net/edison/repo/all" >> /etc/opkg/base-feeds.conf  && echo "src/gz edison http://repo.opkg.net/edison/repo/edison" >> /etc/opkg/base-feeds.conf  && echo "src/gz core2-32 http://repo.opkg.net/edison/repo/core2-32" >> /etc/opkg/base-feeds.conf && opkg update 
+
+# Updating mraa and upm
+
+opkg upgrade libmraa0 && opkg upgrade upm
+
+# Installing Python 3 and libs
+
+opkg install mraa-python3 upm-python3 python3-misc python3-importlib 
+
+
+
+BUILDING FROM SOURCES
+
+# Adding repositories and installing required software
+
+echo "src/gz all http://repo.opkg.net/edison/repo/all" >> /etc/opkg/base-feeds.conf  && echo "src/gz edison http://repo.opkg.net/edison/repo/edison" >> /etc/opkg/base-feeds.conf  && echo "src/gz core2-32 http://repo.opkg.net/edison/repo/core2-32" >> /etc/opkg/base-feeds.conf && opkg update && opkg install git nano mc htop tcl-dev liblzma-dev liblzma-staticdev 
+
+# Getting, compiling and installing Python 3
+
+wget https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz
+tar xvf Python-3.5.0.tgz
+cd Python-3.5.0
+./configure --prefix=/usr --enable-shared
+make -j2
+make install 
+
+# Getting, compiling and installing libmraa
+git clone https://github.com/intel-iot-devkit/mraa.git
+cd mraa
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DBUILDPYTHON3=ON -DPYTHON_INCLUDE_DIR=/usr/include/python3.5m/ -DPYTHON_LIBRARY=/usr/lib/libpython3.so ..
+make -j2
+make install
+
+# Getting, compiling and installing upm
+git clone https://github.com/intel-iot-devkit/upm.git
+cd upm
+mkdir build
+cd build
+cmake -DPYTHON_INCLUDE_DIR=/usr/include/python3.5m/ -DPYTHON_LIBRARY=/usr/lib/libpython3.so -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+make -j2
+make install
+
+

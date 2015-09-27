@@ -177,60 +177,68 @@ def main():
 
 def sensor_bot(bot):
     global LAST_UPDATE_ID
-    custom_keyboard = [['Temp'], ['Humidity'], ['Light', 'UV'], ['Moisture']]
+    custom_keyboard = [['Temperature'], ['Humidity'], ['Light', 'UV'], ['Moisture']]
     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
 
     for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
-
         # print(update.message)
         try:
             chat_id = update.message.chat_id
             message = update.message
-            user_id = message['from'].id
-
+            user_id = update.message.from_user.id
             message_text = update.message.text.encode('utf-8')
         except (IndexError, ValueError, KeyError, TypeError) as error:
             print(error)
-
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
+        # print(message_text)
         if (message_text):
+            print(message_text)
 
             # mysensors.switch_light()
-            if 'Temp' in message_text:
+            if 'Temperature' in message_text:
+                print('Sending Temp')
                 bot.sendMessage(chat_id=chat_id, text='Temperature: ' + str(Sensors().get_temp_sensor_data()) + 'C',
                                 reply_markup=reply_markup)
-                botan.track(BOTAN_TOKEN, user_id, message, 'Temperature')
+                botan.track(BOTAN_TOKEN, user_id, str(update), 'Temperature')
 
-                if 'Light' in message_text:
-                    bot.sendMessage(chat_id=chat_id, text='Light: ' + str(Sensors().get_light_sensor_data()),
-                                    reply_markup=reply_markup)
-                    botan.track(BOTAN_TOKEN, user_id, message, 'Light')
+            if 'Light' in message_text:
+                print('Sending Light')
+                bot.sendMessage(chat_id=chat_id, text='Light: ' + str(Sensors().get_light_sensor_data()),
+                                reply_markup=reply_markup)
+                botan.track(BOTAN_TOKEN, user_id, str(update), 'Light')
 
-                if 'Humidity' in message_text:
-                    bot.sendMessage(chat_id=chat_id,
-                                    text='Humidity: ' + str(Sensors().get_humidity_sensor_data()) + '%',
-                                    reply_markup=reply_markup)
-                    botan.track(BOTAN_TOKEN, user_id, message, 'Humidity')
+            if 'Humidity' in message_text:
+                print('Sending Hum')
+                bot.sendMessage(chat_id=chat_id,
+                                text='Humidity: ' + str(Sensors().get_humidity_sensor_data()) + '%',
+                                reply_markup=reply_markup)
+                botan.track(BOTAN_TOKEN, user_id, str(update), 'Humidity')
 
-                if 'UV' in message_text:
-                    bot.sendMessage(chat_id=chat_id, text='UV: ' + str(Sensors().get_uv_sensor_data()),
-                                    reply_markup=reply_markup)
-                    botan.track(BOTAN_TOKEN, user_id, message, 'UV')
+            if 'UV' in message_text:
+                print('Sending UV')
+                bot.sendMessage(chat_id=chat_id, text='UV: ' + str(Sensors().get_uv_sensor_data()),
+                                reply_markup=reply_markup)
+                botan.track(BOTAN_TOKEN, user_id, str(update), 'UV')
 
-                if 'Moisture' in message_text:
-                    bot.sendMessage(chat_id=chat_id, text='Moisture: ' + str(Sensors().get_moisture_sensor_data()),
-                                    reply_markup=reply_markup)
-                    botan.track(BOTAN_TOKEN, user_id, message, 'Moisture')
+            if 'Moisture' in message_text:
+                print('Sending Moisture')
+                bot.sendMessage(chat_id=chat_id, text='Moisture: ' + str(Sensors().get_moisture_sensor_data()),
+                                reply_markup=reply_markup)
+                botan.track(BOTAN_TOKEN, user_id, str(update), 'Moisture')
 
-                if '/start' in message_text:
-                    bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
-                                    reply_markup=reply_markup)
-                    botan.track(BOTAN_TOKEN, user_id, message, 'Start')
-                    # print ('Sleeping')
-                    # time.sleep(2)
-                    # mysensors.switch_light()
+            if '/start' in message_text:
+                bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
+                                reply_markup=reply_markup)
+                botan.track(BOTAN_TOKEN, user_id, str(update), 'Start')
+                # print ('Sleeping')
+                # time.sleep(2)
+                # mysensors.switch_light()
             LAST_UPDATE_ID = update.update_id + 1
 
-    if __name__ == '__main__':
-        main()
 
-        # print_settings()
+if __name__ == '__main__':
+    main()
+
+    # print_settings()
