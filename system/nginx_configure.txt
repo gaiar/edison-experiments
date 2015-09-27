@@ -1,7 +1,35 @@
-opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0
+# Установить пакеты
+opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0 ntpdate
 
+# Установить пакеты для Python
+pip install requests[security]
 
-./configure --with-http_ssl_module --with-zlib=../zlib-1.2.8 --with-pcre-jit --with-ipv6 --with-pcre-jit --with-http_gzip_static_module --with-http_ssl_module --with-ipv6 --with-http_geoip_module --with-http_stub_status_module
+# Собрать и установить PCRE
+wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.37.tar.gz
+tar xvf pcre-8.37.tar.gz
+cd pcre-8.37
+./configure --enable-utf --enable-unicode-properties --enable-jit
+make -j2
+make install
+
+# Установить uwsgi
+pip install uwsgi
+
+# Собрать и установить nginx
+wget http://nginx.org/download/nginx-1.9.5.tar.gz
+tar xvf nginx-1.9.5.tar.gz
+cd nginx-1.9.5
+./configure --with-http_ssl_module --with-pcre-jit --with-ipv6 --with-pcre-jit --with-http_gzip_static_module --with-http_ssl_module --with-ipv6  --with-http_stub_status_module
+make -j2
+make install
+
+# Прописать nginx как службу
+
+КОД_СКРИПТА
+
+echo "src/gz all http://repo.opkg.net/edison/repo/all" >> /etc/opkg/base-feeds.conf  && echo "src/gz edison http://repo.opkg.net/edison/repo/edison" >> /etc/opkg/base-feeds.conf  && echo "src/gz core2-32 http://repo.opkg.net/edison/repo/core2-32" >> /etc/opkg/base-feeds.conf && opkg update && opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0 wget && pip install uwsgi
+
+./configure --with-http_ssl_module --with-pcre-jit --with-ipv6 --with-pcre-jit --with-http_gzip_static_module --with-http_ssl_module --with-ipv6  --with-http_stub_status_module
 
 wget https://bootstrap.pypa.io/get-pip.py
 
