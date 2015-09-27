@@ -1,10 +1,25 @@
-# Установить пакеты
-opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0 ntpdate
+# Add repositories and install main packets
+echo "src/gz all http://repo.opkg.net/edison/repo/all" >> /etc/opkg/base-feeds.conf  && echo "src/gz edison http://repo.opkg.net/edison/repo/edison" >> /etc/opkg/base-feeds.conf  && echo "src/gz core2-32 http://repo.opkg.net/edison/repo/core2-32" >> /etc/opkg/base-feeds.conf && opkg update
+opkg upgrade libmraa0
+opkg upgrade upm
+opkg upgrade nodejs
+npm install npm -g
 
-# Установить пакеты для Python
+
+
+# Install needed software
+opkg install git openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev ntpdate
+
+#Configure correct timezon
+ntpdate -v ntp.mobatime.ru
+timedatectl set-timezone "Europe/Moscow"
+
+
+# Install Python packets
+pip install requests
 pip install requests[security]
 
-# Собрать и установить PCRE
+# Get and compile PCRE
 wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.37.tar.gz
 tar xvf pcre-8.37.tar.gz
 cd pcre-8.37
@@ -12,10 +27,10 @@ cd pcre-8.37
 make -j2
 make install
 
-# Установить uwsgi
+# Install uwsgi
 pip install uwsgi
 
-# Собрать и установить nginx
+# Get and compile nginx
 wget http://nginx.org/download/nginx-1.9.5.tar.gz
 tar xvf nginx-1.9.5.tar.gz
 cd nginx-1.9.5
@@ -23,11 +38,34 @@ cd nginx-1.9.5
 make -j2
 make install
 
-# Прописать nginx как службу
+# Add nginx startup scripts
+nano /lib/systemd/system/nginx.service
 
-КОД_СКРИПТА
+#Remove Edison default web server
+nano /usr/lib/edison_config_tools/edison-config-server.js
+http.createServer(requestHandler).listen(8080);
+systemctl restart edison_config.service
 
-echo "src/gz all http://repo.opkg.net/edison/repo/all" >> /etc/opkg/base-feeds.conf  && echo "src/gz edison http://repo.opkg.net/edison/repo/edison" >> /etc/opkg/base-feeds.conf  && echo "src/gz core2-32 http://repo.opkg.net/edison/repo/core2-32" >> /etc/opkg/base-feeds.conf && opkg update && opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0 wget && pip install uwsgi
+systemctl status  edison_config.service
+systemctl disable edison_config.service
+systemctl stop    edison_config.service
+systemctl status  edison_config.service
+
+#Update iotkit-agent
+npm update -g iotkit-agent
+
+#Adding device to cloud
+iotkit-admit activate XXXXXXXX
+iotkit-admin register humidity1 humidity.v1.2
+
+#Add nginx configuration
+
+
+
+
+пїЅпїЅпїЅ_пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+
+ opkg install libpcre-dev openssl libgnutls-openssl27 python-pip nano mc htop python-distutils python-distutils-staticdev libpcre-dev libpcre-staticdev libpcre1 libpcrecpp0 libpcreposix0 wget && pip install uwsgi
 
 ./configure --with-http_ssl_module --with-pcre-jit --with-ipv6 --with-pcre-jit --with-http_gzip_static_module --with-http_ssl_module --with-ipv6  --with-http_stub_status_module
 
