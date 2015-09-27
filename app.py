@@ -230,7 +230,7 @@ def sensor_bot(bot):
                     # mysensors.switch_light()
             LAST_UPDATE_ID = update.update_id + 1
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
 
         # print_settings()
