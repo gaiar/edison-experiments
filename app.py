@@ -6,11 +6,18 @@ import telegram
 import operator
 import time
 import botan
+from iotkit import iot_kit
 
 global mysensors
 mysensors = Sensors()
 
+iot = ""
 BOTAN_TOKEN = '3332aa98-4a97-4617-a68b-902122df9cc0'
+IOTKIT_TEMPERATURE_CID = '9002e58c-ab30-4e08-9527-d7ee9127c722'
+IOTKIT_HUMIDITY_CID = '39632c0b-bee3-47b4-a680-a49fcebe942b'
+IOTKIT_LIGHT_CID = '5e19f7c0-d087-45a9-9fc2-82a2d38f9cd0'
+IOTKIT_UV_CID = '510ef836-64d3-4fca-97fc-92eeadccd01b'
+IOTKIT_MOISTURE_CID = '93382cb9-2549-456c-97f0-16abb1929c0b'
 
 CMDSTR_MAX_LEN = 128
 LOW_TEMP = 10
@@ -83,8 +90,6 @@ SensorConfig = [
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 
-## Exit handlers ##
-# This function stops python from printing a stacktrace when you hit control-C
 def SIGINTHandler(signum, frame):
     raise SystemExit
 
@@ -126,20 +131,6 @@ def serial_request_handler():
         i += 1
 
 
-def is_button_pressed():
-    return button.value()
-
-
-# def relay_handle(state):
-
-# atexit.register(exitHandler)
-# signal.signal(signal.SIGINT, SIGINTHandler)
-
-
-
-
-
-
 def BuzzerHandler(val):
     return
 
@@ -165,12 +156,22 @@ LAST_UPDATE_ID = None
 
 def main():
     global LAST_UPDATE_ID
+    global iot
 
     bot = telegram.Bot(token='129517685:AAF78SRwWNdaL8XY0z3tDSIKLqcxV6N8eIw')
+    iot = iot_kit()
+
     try:
         LAST_UPDATE_ID = bot.getUpdates()[-1].update_id
     except IndexError:
         LAST_UPDATE_ID = None
+    while True:
+        iot.create_observations(IOTKIT_TEMPERATURE_CID, str(Sensors().get_temp_sensor_data()))
+        iot.create_observations(IOTKIT_HUMIDITY_CID, str(Sensors().get_humidity_sensor_data()))
+        iot.create_observations(IOTKIT_LIGHT_CID, str(Sensors().get_light_sensor_data()))
+        iot.create_observations(IOTKIT_UV_CID, str(Sensors().get_uv_sensor_data()))
+        time.sleep(300)
+
     while True:
         sensor_bot(bot)
 
@@ -184,7 +185,6 @@ def sensor_bot(bot):
         # print(update.message)
         try:
             chat_id = update.message.chat_id
-            message = update.message
             user_id = update.message.from_user.id
             message_text = update.message.text.encode('utf-8')
         except (IndexError, ValueError, KeyError, TypeError) as error:
@@ -198,32 +198,33 @@ def sensor_bot(bot):
 
             # mysensors.switch_light()
             if 'Temperature' in message_text:
-                print('Sending Temp')
+                # print('Sending Temp')
                 bot.sendMessage(chat_id=chat_id, text='Temperature: ' + str(Sensors().get_temp_sensor_data()) + 'C',
                                 reply_markup=reply_markup)
+
                 botan.track(BOTAN_TOKEN, user_id, str(update), 'Temperature')
 
             if 'Light' in message_text:
-                print('Sending Light')
+                # print('Sending Light')
                 bot.sendMessage(chat_id=chat_id, text='Light: ' + str(Sensors().get_light_sensor_data()),
                                 reply_markup=reply_markup)
                 botan.track(BOTAN_TOKEN, user_id, str(update), 'Light')
 
             if 'Humidity' in message_text:
-                print('Sending Hum')
+                # print('Sending Hum')
                 bot.sendMessage(chat_id=chat_id,
                                 text='Humidity: ' + str(Sensors().get_humidity_sensor_data()) + '%',
                                 reply_markup=reply_markup)
                 botan.track(BOTAN_TOKEN, user_id, str(update), 'Humidity')
 
             if 'UV' in message_text:
-                print('Sending UV')
+                # print('Sending UV')
                 bot.sendMessage(chat_id=chat_id, text='UV: ' + str(Sensors().get_uv_sensor_data()),
                                 reply_markup=reply_markup)
                 botan.track(BOTAN_TOKEN, user_id, str(update), 'UV')
 
             if 'Moisture' in message_text:
-                print('Sending Moisture')
+                # print('Sending Moisture')
                 bot.sendMessage(chat_id=chat_id, text='Moisture: ' + str(Sensors().get_moisture_sensor_data()),
                                 reply_markup=reply_markup)
                 botan.track(BOTAN_TOKEN, user_id, str(update), 'Moisture')
