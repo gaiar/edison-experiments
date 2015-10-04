@@ -1,22 +1,34 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 __author__ = 'gaiar'
 
-import time, sys, signal, atexit
-from sensors import Sensors
-import telegram
+import sys
 import operator
 import time
+import datetime
+from flask import Flask, request, render_template
+import simplejson as json
+import telegram
+
+from sensors import Sensors
 import botan
 from iotkit import iot_kit
+import logging
+from logging.handlers import RotatingFileHandler
+
+app = Flask(__name__)
+app.debug = True
 
 global mysensors
 mysensors = Sensors()
 
 iot = ""
 BOTAN_TOKEN = '3332aa98-4a97-4617-a68b-902122df9cc0'
-IOTKIT_TEMPERATURE_CID = '9002e58c-ab30-4e08-9527-d7ee9127c722'
-IOTKIT_HUMIDITY_CID = '39632c0b-bee3-47b4-a680-a49fcebe942b'
-IOTKIT_LIGHT_CID = '5e19f7c0-d087-45a9-9fc2-82a2d38f9cd0'
-IOTKIT_UV_CID = '510ef836-64d3-4fca-97fc-92eeadccd01b'
+IOTKIT_TEMPERATURE_CID = '219d3236-332b-45ec-9d65-68cd82ed0387'
+IOTKIT_HUMIDITY_CID = '1f398387-b688-4f07-a111-1a27461e1216'
+IOTKIT_LIGHT_CID = 'b7fb5543-1b94-4b5c-bf93-4b7c94c31613'
+IOTKIT_UV_CID = 'c2c69303-f70a-43cc-9b37-fd5ab9bef54a'
 IOTKIT_MOISTURE_CID = '93382cb9-2549-456c-97f0-16abb1929c0b'
 
 CMDSTR_MAX_LEN = 128
@@ -52,6 +64,9 @@ ops = {
     "<": operator.lt,
     "=": operator.eq
 }
+
+global bot
+bot = telegram.Bot(token='129517685:AAF78SRwWNdaL8XY0z3tDSIKLqcxV6N8eIw')
 
 
 def servo_handle(value):
@@ -158,7 +173,6 @@ def main():
     global LAST_UPDATE_ID
     global iot
 
-    bot = telegram.Bot(token='129517685:AAF78SRwWNdaL8XY0z3tDSIKLqcxV6N8eIw')
     iot = iot_kit()
 
     try:
@@ -166,35 +180,76 @@ def main():
     except IndexError:
         LAST_UPDATE_ID = None
     while True:
-        iot.create_observations(IOTKIT_TEMPERATURE_CID, str(Sensors().get_temp_sensor_data()))
-        iot.create_observations(IOTKIT_HUMIDITY_CID, str(Sensors().get_humidity_sensor_data()))
-        iot.create_observations(IOTKIT_LIGHT_CID, str(Sensors().get_light_sensor_data()))
-        iot.create_observations(IOTKIT_UV_CID, str(Sensors().get_uv_sensor_data()))
-        time.sleep(300)
-
-    while True:
         sensor_bot(bot)
+        iot.create_observations(IOTKIT_TEMPERATURE_CID, str(Sensors().get_temp_sensor_data()), current_milli_time())
+        iot.create_observations(IOTKIT_HUMIDITY_CID, str(Sensors().get_humidity_sensor_data()), current_milli_time())
+        iot.create_observations(IOTKIT_LIGHT_CID, str(Sensors().get_light_sensor_data()), current_milli_time())
+        iot.create_observations(IOTKIT_UV_CID, str(Sensors().get_uv_sensor_data()), current_milli_time())
+        time.sleep(5)
 
 
-def sensor_bot(bot):
-    global LAST_UPDATE_ID
-    custom_keyboard = [['Temperature'], ['Humidity'], ['Light', 'UV'], ['Moisture']]
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+current_milli_time = lambda: int(round(time.time() * 1000))
 
-    for update in bot.getUpdates(offset=LAST_UPDATE_ID, timeout=10):
-        # print(update.message)
+
+@app.route('/')
+def index():
+    current_sensors = []
+
+    current_sensors.append({
+        'number': 1,
+        'name': 'Temperature',
+        'value': str(Sensors().get_temp_sensor_data()),
+        'measurement': 'C'
+    })
+
+    current_sensors.append({
+        'number': 2,
+        'name': 'Humidity',
+        'value': str(Sensors().get_humidity_sensor_data()),
+        'measurement': '%'
+    })
+
+    current_sensors.append({
+        'number': 3,
+        'name': 'Light',
+        'value': str(Sensors().get_light_sensor_data()),
+        'measurement': 'Lux'
+    })
+
+    current_sensors.append({
+        'number': 4,
+        'name': 'UV',
+        'value': str(Sensors().get_uv_sensor_data()),
+        'measurement': 'UVs'
+    })
+
+    return render_template('index.html', sensors=current_sensors)
+
+
+@app.route('/bot',methods=['GET', 'POST'])
+def sensor_bot():
+    #app.logger.info('Got something')
+    #app.logger.info(json.dumps(request.get_json(force=True)))
+    if request.method == "POST":
+        #app.logger.info('Got something inside')
+        #app.logger.info(request.values)
+        custom_keyboard = [['Temperature'], ['Humidity'], ['Light', 'UV'], ['Moisture']]
+        reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True)
+        update = telegram.Update.de_json(request.get_json(force=True))
+
+        #app.logger.info(update)
+
         try:
             chat_id = update.message.chat_id
             user_id = update.message.from_user.id
             message_text = update.message.text.encode('utf-8')
         except (IndexError, ValueError, KeyError, TypeError) as error:
-            print(error)
+            app.logger.warning(error)
         except:
             print("Unexpected error:", sys.exc_info()[0])
             raise
-        # print(message_text)
         if (message_text):
-            print(message_text)
+            #app.logger.info(message_text)
 
             # mysensors.switch_light()
             if 'Temperature' in message_text:
@@ -233,14 +288,28 @@ def sensor_bot(bot):
                 bot.sendMessage(chat_id=chat_id, text='What do you want to know?',
                                 reply_markup=reply_markup)
                 botan.track(BOTAN_TOKEN, user_id, str(update), 'Start')
-                # print ('Sleeping')
-                # time.sleep(2)
                 # mysensors.switch_light()
-            LAST_UPDATE_ID = update.update_id + 1
+            return ('{}')
+    else:
+        app.logger.info('Bot is here!')
+        return ('Bot is here!')
+
+@app.route('/set_webhook', methods=['GET', 'POST'])
+def set_webhook():
+    bot.setWebhook('')
+    s = bot.setWebhook('https://iotbot.ru/bot')
+    if s:
+        return "webhook setup ok"
+    else:
+        return "webhook setup failed"
 
 
 if __name__ == '__main__':
+    handler = RotatingFileHandler('iotbot.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
+    try:
+        app.run(debug=True)
+    except Exception:
+        app.logger.exception('Failed')
     main()
-
-
-    # print_settings()

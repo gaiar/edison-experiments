@@ -6,18 +6,16 @@ import time
 import random
 
 
-class iot_kit():
+class iot_kit(object):
     host = "dashboard.us.enableiot.com"
 
     proxies = {
-        # Указываем проксю
+
     }
 
     username = "gaiar@baimuratov.ru"
     password = "1Q2w3e4r!@"
     account_name = "gaiar3"
-
-    # Указываем id девайса, если уже существует выдаст ошибку
 
     device_id = "02-00-86-66-0b-13"
     account_id = ""
@@ -35,39 +33,41 @@ class iot_kit():
     g_device_token = ""
 
     def __init__(self):
-        global g_user_token, g_device_token
+        global g_user_token, g_device_token, g_device_token
 
-        # инициализируем аутентификацию для последующих API вызовов
         g_user_token = self.get_token(self.username, self.password)
 
-        # получаем user_id внутри Intel IoT Analytics Platform
         uid = self.get_user_id()
         print("UserId: {0}".format(uid))
 
         self.account_id = self.get_account_id(uid, self.account_name)
         print("AccountId: {0}".format(self.account_id))
 
-        # создаем новый девайс с акаунтом
-        self.create_device(self.account_id, self.device_id, self.device_name)
 
-        # Обновляем код активации
+        # self.create_device(self.account_id, self.device_id, self.device_name)
+
+
         ac = self.generate_activation_code(self.account_id)
         print("Activation code: {0}".format(ac))
 
-        # Активируем девайс
-        g_device_token = self.activate(self.account_id, self.device_id, ac)
+        g_device_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJqdGkiOiJmODY3YWE1Zi05ZWNhLTQzNzQtYTliZC0wZDA1NGVlMDNkNGMiLCJpc3MiOiJodHRwOi8vZW5hYmxlaW90LmNvbSIsInN1YiI6IjAyLTAwLTg2LTY2LTBiLTEzIiwiZXhwIjoiMjAyNS0wOS0zMFQxMzoxNDo0Ny40MjNaIn0.LLk9zaeEXCPgFVpTKTqFUhbd7j8FdLLDGJppKH1hKpUQcc_lk_aMVT9XocsfYfqJI43i4U_QQPNr5hRlEcmsUGWYaymh8W9duhS--p2hWvZZZOimt4rc7xXt2QrEDBDFgxAcOsEw06GrXCTB_Fpzw6gFISyXQ31FqVTFdFJOw-fm4QTpwNfrt2aefI7mopgIw2LAlMFvhQCfKlnAY29Vbcqg665gcUxPVg7udCbiL_mFAJXhDL49HLFbzl2pBQZAwHHPs-z3gYlrt2syVMmRmsXYE6wHQxo69IQBfwWi_PbRP8vw8F4mKQAFmjWVKHfLlxw7-Mhh0o-1KpY76_-yBw"
+        # g_device_token = self.activate(self.account_id, self.device_id, ac)
 
-        # Регистрируем сенсор измерения расстояния "Distance.v1.0". Данный вызов вернет component_id (cid)
-        # cid = self.create_component(aid, device_id, "Distance.v1.0", "Dist")
-        # print("ComponentID (cid): {0}".format(cid))
+        # cid = self.create_component(self.account_id, self.device_id, "temperature.v1.0", "temp1")
+        # print ("ComponentID (cid): {0}".format(cid))
 
-    #             create_observations(aid, device_id, cid, value)
-    #
-    #             # читаем засабмиченные данные
-    #         o = get_observations(aid, device_id, cid)
-    #         print_observation_counts(o)
+        # cid = self.create_component(self.account_id, self.device_id, "humidity.v1.1", "humidity1")
+        # print ("ComponentID (cid): {0}".format(cid))
+
+        # cid = self.create_component(self.account_id, self.device_id, "light.v1.0", "light1")
+        # print ("ComponentID (cid): {0}".format(cid))
+
+        # cid = self.create_component(self.account_id, self.device_id, "uv.v1.0", "ultraviolet1")
+        # print ("ComponentID (cid): {0}".format(cid))
 
 
+
+        print("Device token: {0}".format(g_device_token))
 
     def get_user_headers(self):
         headers = {
@@ -81,7 +81,7 @@ class iot_kit():
             'Authorization': 'Bearer ' + g_device_token,
             'content-type': 'application/json'
         }
-        # print "Headers = " + str(headers) (ЗАКОМЕНЧЕННЫЙ КОД)
+
         return headers
 
     def check(self, resp, code):
@@ -178,18 +178,21 @@ class iot_kit():
         js = resp.json()
         return js["cid"]
 
-    def create_observations(self, cid, val):
+    def create_observations(self, cid, val, on):
         url = "{0}/data/{1}".format(self.base_url, self.device_id)
         body = {
             "accountId": self.account_id,
-            "data": []
+            "data": [],
+            "on": int(round(time.time() * 1000))
         }
         o = {
+            "on": on,
             "componentId": cid,
             "value": str(val),
         }
         body["data"].append(o)
         data = json.dumps(body)
+        print("Data: {0}".format(data))
         resp = requests.post(url, data=data, headers=self.get_device_headers(), proxies=self.proxies,
                              verify=self.verify)
         self.check(resp, 201)

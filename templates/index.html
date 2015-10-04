@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link href="//yastatic.net/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script href="//yastatic.net/jquery/2.1.4/jquery.js"></script>
+    <title>Gaiar's Smart Home</title>
+</head>
+<body>
+<div class="container">
+
+    <div class="page-header">
+        <h1>Gaiar's Smart Home</h1>
+
+        <p class="lead">Shows current sensors status</p>
+    </div>
+
+    <h3>Sensors data</h3>
+
+    <div class="row">
+        <div class="col-md-4">
+            <table class="table table-striped">
+                <thead>
+
+                <tr>
+                    <th>#</th>
+                    <th>Sensor</th>
+                    <th>Value</th>
+                    <th>Measurement</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for sensor in sensors %}
+                <tr>
+                    <td>{{sensor.number}}</td>
+                    <td>{{sensor.name}}</td>
+                    <td>{{sensor.value}}</td>
+                    <td>{{sensor.measurement}}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
