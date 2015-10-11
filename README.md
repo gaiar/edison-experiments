@@ -48,6 +48,9 @@ timedatectl set-timezone "Europe/Moscow"
 ```
 pip install requests
 pip install requests[security]
+pip install flask
+pip install python-telegram-bot
+pip install virtualenv
 ```
 
 ## Сборка и установка необходимых сетевых сервисов
