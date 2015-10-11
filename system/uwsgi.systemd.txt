@@ -3,6 +3,8 @@ Description=uWSGI Emperor
 After=syslog.target
 
 [Service]
+Environment=statedir=/var/run/uwsgi
+ExecStartPre=/bin/mkdir -p ${statedir}
 ExecStart=/usr/bin/uwsgi --ini /etc/uwsgi/emperor.ini
 Restart=always
 KillSignal=SIGQUIT

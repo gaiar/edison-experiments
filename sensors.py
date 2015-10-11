@@ -29,7 +29,7 @@ class Sensors(object):
     light_sensor = grove.GroveLight(PIN_LIGHT)
     uv = upm_uv.GUVAS12D(PIN_UV)
     th02 = ths.TH02()
-    lcd = upm_lcd.Jhd1313m1(0, 0x3E, 0x62)
+    #lcd = upm_lcd.Jhd1313m1(0, 0x3E, 0x62)
     buzzer = upm_buzzer.Buzzer(PIN_BUZZER)
     relay = grove.GroveRelay(0)
     button = grove.GroveButton(8)
